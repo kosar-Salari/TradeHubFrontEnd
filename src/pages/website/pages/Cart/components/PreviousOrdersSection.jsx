@@ -135,11 +135,10 @@ const PreviousOrdersSection = ({
                     </div>
 
                     <div
-                      className={`space-y-2 pr-1 pl-1 ${
-                        isExpanded && items.length > 4
-                          ? 'max-h-[360px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full'
-                          : ''
-                      }`}
+                      className={`space-y-2 pr-1 pl-1 ${isExpanded && items.length > 4
+                        ? 'max-h-[360px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full'
+                        : ''
+                        }`}
                     >
                       {visibleItems.map((item, index) => (
                         <div
@@ -172,10 +171,15 @@ const PreviousOrdersSection = ({
                               </span>
                             </div>
                           </div>
-
                           <button
                             type="button"
-                            onClick={() => navigate(`/${slug}/product/${item.itemId}`)}
+                            onClick={() => {
+                              if (order.status === 'Canceled') {
+                                navigate(`/${slug}/product/${item.itemId}`);
+                              } else {
+                                navigate(`/${slug}/order/product/${order.id}`);
+                              }
+                            }}
                             className="flex items-center gap-1.5 bg-gray-900 hover:bg-black text-white text-xs px-3 py-2 rounded-xl transition-colors flex-shrink-0"
                           >
                             <Eye className="w-3.5 h-3.5" />

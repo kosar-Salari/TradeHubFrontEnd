@@ -8,7 +8,7 @@ import { getItemImages, getItemImageById } from '../../../../API/Items';
 
 import { useParams } from 'react-router-dom';
 import { getOrderWithProduct } from '../../../../API/orders';
-import { getProductById, getItemRating } from '../../../../API/Items'; 
+import { getProductById, getItemRating } from '../../../../API/Items';
 
 const PurchasedProduct = () => {
     const [selectedImage, setSelectedImage] = useState(0);
@@ -272,6 +272,60 @@ const PurchasedProduct = () => {
                     </p>
                 </div>
             </div>
+            {isZoomed && (
+                <div
+                    className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center p-4"
+                    onClick={() => setIsZoomed(false)}
+                >
+                    <button
+                        type="button"
+                        onClick={() => setIsZoomed(false)}
+                        className="absolute top-5 left-5 bg-white/90 hover:bg-white text-gray-900 rounded-full p-3 shadow-lg transition-all z-20"
+                    >
+                        <X className="w-6 h-6" />
+                    </button>
+
+                    {productImages.length > 1 && (
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handlePrevImage();
+                            }}
+                            className="absolute left-5 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-900 rounded-full p-3 shadow-lg transition-all z-20"
+                        >
+                            <ChevronLeft className="w-7 h-7" />
+                        </button>
+                    )}
+
+                    <img
+                        src={productImages[selectedImage]}
+                        alt="تصویر بزرگ محصول"
+                        onClick={(e) => e.stopPropagation()}
+                        className="max-w-[95vw] max-h-[90vh] object-contain rounded-2xl shadow-2xl"
+                        onError={(e) => {
+                            e.target.src = '/website/Image(1).png';
+                        }}
+                    />
+
+                    {productImages.length > 1 && (
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleNextImage();
+                            }}
+                            className="absolute right-5 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-900 rounded-full p-3 shadow-lg transition-all z-20"
+                        >
+                            <ChevronRight className="w-7 h-7" />
+                        </button>
+                    )}
+
+                    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-white/90 text-gray-800 px-4 py-2 rounded-full text-sm font-Kahroba">
+                        {selectedImage + 1} / {productImages.length}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
