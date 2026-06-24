@@ -248,25 +248,57 @@ export default function Card() {
     checkLoginAndLoadCart();
   }, []);
 
+
+
   const loadCartItems = async () => {
     try {
       setLoading(true);
-      const cartItems = await getMyCart();
 
-      const formattedItems = cartItems.map(item => ({
-        id: item.id,
-        name: item.item_name || `محصول ${item.item_id.substring(0, 8)}`,
-        originalPrice: item.price ? parseFloat(item.price) : 0,
-        price: item.discount_price ? parseFloat(item.discount_price) : parseFloat(item.price) || 0,
-        hasDiscount: item.discount_price && parseFloat(item.discount_price) < parseFloat(item.price),
-        quantity: item.quantity || 1,
-        image: item.image_url || null,
-        itemId: item.item_id,
-        websiteId: item.website_id
-      }));
+      const cartData = await getMyCart();
+
+      const formattedItems = await Promise.all(
+        (cartData || []).map(async (item) => {
+          let productImage =
+            item.image_url ||
+            item.image ||
+            item.item_image ||
+            item.product_image ||
+            item.thumbnail ||
+            null;
+
+          if (!productImage && item.item_id) {
+            productImage = await getProductMainImage(item.item_id);
+          }
+
+          const itemIdText = item.item_id
+            ? String(item.item_id).substring(0, 8)
+            : '';
+
+          const originalPrice = item.price ? parseFloat(item.price) : 0;
+          const finalPrice = item.discount_price
+            ? parseFloat(item.discount_price)
+            : parseFloat(item.price) || 0;
+
+          return {
+            id: item.id,
+            name: item.item_name || `محصول ${itemIdText}`,
+            originalPrice,
+            price: finalPrice,
+            hasDiscount:
+              item.discount_price &&
+              parseFloat(item.discount_price) < parseFloat(item.price),
+            quantity: item.quantity || 1,
+            image: productImage,
+            itemId: item.item_id,
+            websiteId: item.website_id
+          };
+        })
+      );
+
       setCartItems(formattedItems);
     } catch (error) {
       console.error("خطا در دریافت سبد خرید:", error);
+
       if (error.response?.status === 401) {
         const websiteId = localStorage.getItem('current_store_website_id');
         localStorage.removeItem(`buyer_token_${websiteId}`);
