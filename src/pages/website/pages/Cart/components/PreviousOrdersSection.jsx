@@ -1,5 +1,13 @@
-import React from 'react';
-import { Package, Clock, CheckCircle, XCircle, Eye } from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  Package,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Eye,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
 
 const PreviousOrdersSection = ({
   previousOrders,
@@ -7,6 +15,15 @@ const PreviousOrdersSection = ({
   navigate,
   slug
 }) => {
+  const [expandedOrders, setExpandedOrders] = useState({});
+
+  const toggleOrderProducts = (orderId) => {
+    setExpandedOrders((prev) => ({
+      ...prev,
+      [orderId]: !prev[orderId],
+    }));
+  };
+
   const getStatusIcon = (status) => {
     return status === 'Paid' ? (
       <CheckCircle className="w-4 h-4 text-emerald-600" />
@@ -68,6 +85,10 @@ const PreviousOrdersSection = ({
             const items = order.items || [];
             const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
 
+            const isExpanded = expandedOrders[order.id] || false;
+            const visibleItems = isExpanded ? items : items.slice(0, 1);
+            const hiddenItemsCount = Math.max(items.length - 1, 0);
+
             return (
               <div
                 key={order.id}
@@ -113,14 +134,16 @@ const PreviousOrdersSection = ({
                       <span className="text-xs text-gray-400">لیست خرید</span>
                     </div>
 
-  <div className="space-y-2 h-[180px] overflow-y-auto pr-1 pl-1
-    [&::-webkit-scrollbar]:w-1.5
-    [&::-webkit-scrollbar-track]:bg-transparent
-    [&::-webkit-scrollbar-thumb]:bg-gray-300
-    [&::-webkit-scrollbar-thumb]:rounded-full"
-  >                      {items.map((item, index) => (
+                    <div
+                      className={`space-y-2 pr-1 pl-1 ${
+                        isExpanded && items.length > 4
+                          ? 'max-h-[360px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full'
+                          : ''
+                      }`}
+                    >
+                      {visibleItems.map((item, index) => (
                         <div
-                          key={index}
+                          key={`${item.itemId || item.name}-${index}`}
                           className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors"
                         >
                           <div className="w-14 h-14 bg-white rounded-2xl border border-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -151,13 +174,8 @@ const PreviousOrdersSection = ({
                           </div>
 
                           <button
-                            onClick={() => {
-                              if (order.status === 'Canceled') {
-                                navigate(`/${slug}/product/${item.itemId}`);
-                              } else {
-                                navigate(`/${slug}/order/product/${order.id}`);
-                              }
-                            }}
+                            type="button"
+                            onClick={() => navigate(`/${slug}/product/${item.itemId}`)}
                             className="flex items-center gap-1.5 bg-gray-900 hover:bg-black text-white text-xs px-3 py-2 rounded-xl transition-colors flex-shrink-0"
                           >
                             <Eye className="w-3.5 h-3.5" />
@@ -165,6 +183,33 @@ const PreviousOrdersSection = ({
                           </button>
                         </div>
                       ))}
+
+                      {items.length > 1 ? (
+                        <button
+                          type="button"
+                          onClick={() => toggleOrderProducts(order.id)}
+                          className="w-full flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-100 border border-dashed border-gray-200 text-gray-700 rounded-2xl px-4 py-3 text-sm font-bold transition-colors"
+                        >
+                          {isExpanded ? (
+                            <>
+                              <ChevronUp className="w-4 h-4" />
+                              <span>بستن لیست محصولات</span>
+                            </>
+                          ) : (
+                            <>
+                              <ChevronDown className="w-4 h-4" />
+                              <span>نمایش {hiddenItemsCount} محصول دیگر</span>
+                            </>
+                          )}
+                        </button>
+                      ) : (
+                        <div
+                          aria-hidden="true"
+                          className="w-full flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold border border-transparent invisible"
+                        >
+                          جای خالی
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
