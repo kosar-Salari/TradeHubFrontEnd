@@ -230,7 +230,7 @@ const Products = () => {
                 filtered = filtered.filter((item) => item.discount);
                 break;
             case "پرفروش‌ترین":
-                filtered.sort((a, b) => (b.salesCount || 0) - (a.salesCount || 0)); 
+                filtered.sort((a, b) => (b.salesCount || 0) - (a.salesCount || 0));
                 break;
             default:
                 break;
@@ -269,8 +269,8 @@ const Products = () => {
         } else {
             loadProducts(websiteId);
         }
-        setPriceRange([null, null]); 
-        setPriceDisplay(['', '']); 
+        setPriceRange([null, null]);
+        setPriceDisplay(['', '']);
         setSortOption("جدیدترین");
     };
 
@@ -418,7 +418,7 @@ const Products = () => {
                                         type="text"
                                         value={priceDisplay[0]}
                                         onChange={(e) => {
-                                            const value = e.target.value.replace(/[^\d]/g, ''); 
+                                            const value = e.target.value.replace(/[^\d]/g, '');
                                             const formatted = formatNumberWithComma(value);
                                             setPriceDisplay([formatted, priceDisplay[1]]);
 
@@ -437,7 +437,7 @@ const Products = () => {
                                         type="text"
                                         value={priceDisplay[1]}
                                         onChange={(e) => {
-                                            const value = e.target.value.replace(/[^\d]/g, ''); 
+                                            const value = e.target.value.replace(/[^\d]/g, '');
                                             const formatted = formatNumberWithComma(value);
                                             setPriceDisplay([priceDisplay[0], formatted]);
 
@@ -521,9 +521,12 @@ const Products = () => {
                         </div>
                     ) : (
                         <>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 justify-items-center">
+                            <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,240px))] justify-center gap-x-5 gap-y-8">
                                 {paginatedProducts().map((product) => (
-                                    <div key={product.id}>
+                                    <div
+                                        key={product.id}
+                                        className="w-full [&>*]:!w-full [&>*]:!max-w-none"
+                                    >
                                         <ProductCard
                                             {...product}
                                             websiteId={websiteId}

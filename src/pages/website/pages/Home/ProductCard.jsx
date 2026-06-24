@@ -12,11 +12,11 @@ const Modal = ({ isOpen, onClose, type, title, message }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div 
+      <div
         className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       <div className="relative bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4 p-6 animate-in fade-in zoom-in-95 duration-200">
         <button
           onClick={onClose}
@@ -44,11 +44,10 @@ const Modal = ({ isOpen, onClose, type, title, message }) => {
 
           <button
             onClick={onClose}
-            className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 font-Kahroba ${
-              type === 'success'
-                ? 'bg-green-500 hover:bg-green-600 text-white'
-                : 'bg-red-500 hover:bg-red-600 text-white'
-            }`}
+            className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 font-Kahroba ${type === 'success'
+              ? 'bg-green-500 hover:bg-green-600 text-white'
+              : 'bg-red-500 hover:bg-red-600 text-white'
+              }`}
           >
             متوجه شدم
           </button>
@@ -79,7 +78,7 @@ const ProductCard = ({
   const [isUpdatingQuantity, setIsUpdatingQuantity] = useState(false);
   const [actualRating, setActualRating] = useState(0);
   const [mainImage, setMainImage] = useState(null);
-  
+
   const [modal, setModal] = useState({
     isOpen: false,
     type: 'success',
@@ -313,9 +312,10 @@ const ProductCard = ({
 
   const { fullStars, hasHalfStar, emptyStars } = getStars(actualRating);
 
+
   return (
     <>
-      <div className="group relative font-Kahroba bg-white shadow-lg rounded-2xl p-4 w-full max-w-[260px] transition-all duration-300 hover:shadow-2xl hover:scale-105">
+      <div className="group relative font-Kahroba bg-white shadow-lg rounded-2xl p-4 w-full max-w-[260px] flex flex-col transition-all duration-300 hover:shadow-2xl hover:scale-105">
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300 rounded-2xl z-10">
           <div className="absolute inset-0 flex items-center justify-center">
             {cartItem ? (
@@ -331,7 +331,11 @@ const ProductCard = ({
                     >
                       −
                     </button>
-                    <span className="font-bold text-gray-800">{cartItem.quantity}</span>
+
+                    <span className="font-bold text-gray-800">
+                      {cartItem.quantity}
+                    </span>
+
                     <button
                       onClick={() => handleQuantityChange(cartItem.quantity + 1)}
                       disabled={isUpdatingQuantity}
@@ -342,7 +346,6 @@ const ProductCard = ({
                   </>
                 )}
               </div>
-
             ) : (
               <button
                 onClick={handleAddToCart}
@@ -361,8 +364,8 @@ const ProductCard = ({
               onClick={handleFavoriteToggle}
               disabled={isUpdatingFavorite}
               className={`flex items-center justify-center gap-1 px-3 py-2 w-1/2 mr-1 rounded-lg transition-all duration-200 ${isLiked
-                ? 'bg-black text-red-400 hover:bg-gray-800'
-                : 'bg-black text-white hover:bg-gray-800'
+                  ? 'bg-black text-red-400 hover:bg-gray-800'
+                  : 'bg-black text-white hover:bg-gray-800'
                 } ${isUpdatingFavorite ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} />
@@ -381,13 +384,15 @@ const ProductCard = ({
           </div>
         </div>
 
-        <div className="relative mb-4 overflow-hidden rounded-xl">
+        <div className="relative mb-4 overflow-hidden rounded-xl flex-shrink-0">
           <div className="h-52 flex items-center justify-center bg-gray-50">
             <img
               src={mainImage || image || "/website/Image(1).png"}
               alt={name}
               className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
-              onError={(e) => { e.target.src = "/website/Image(1).png"; }}
+              onError={(e) => {
+                e.target.src = "/website/Image(1).png";
+              }}
             />
           </div>
 
@@ -398,38 +403,51 @@ const ProductCard = ({
           )}
         </div>
 
-        <div className="text-right space-y-2">
-          <h3 className="text-gray-800 font-bold text-lg leading-tight">{name}</h3>
+        <div className="text-right space-y-2 flex-1 flex flex-col">
+          <h3 className="text-gray-800 font-bold text-lg leading-tight min-h-[28px] truncate">
+            {name}
+          </h3>
 
-          <div className="space-y-1 font-modam">
+          <div className="min-h-[58px] flex flex-col items-end justify-start font-modam">
             {discount && discountedPrice ? (
               <>
-                <p className="text-gray-400 text-sm line-through">
+                <p className="text-gray-400 text-sm line-through leading-6">
                   {price.toLocaleString('fa-IR')} ریال
                 </p>
-                <p className="text-red-500 font-bold text-xl">
+
+                <p className="text-red-500 font-bold text-xl leading-8">
                   {discountedPrice.toLocaleString('fa-IR')} ریال
                 </p>
               </>
             ) : discount ? (
               <>
-                <p className="text-gray-400 text-sm line-through">
+                <p className="text-gray-400 text-sm line-through leading-6">
                   {price.toLocaleString('fa-IR')} ریال
                 </p>
-                <p className="text-red-500 font-bold text-xl">
-                  {calculateDiscountedPrice(price, discount.replace('%', '')).toLocaleString('fa-IR')} ریال
+
+                <p className="text-red-500 font-bold text-xl leading-8">
+                  {calculateDiscountedPrice(price, String(discount).replace('%', ''))}
                 </p>
               </>
             ) : (
-              <p className="text-blue-600 font-bold text-xl">
-                {price.toLocaleString('fa-IR')} ریال
-              </p>
+              <>
+                <p className="text-sm leading-6 text-transparent line-through select-none">
+                  جای قیمت
+                </p>
+
+                <p className="text-blue-600 font-bold text-xl leading-8">
+                  {price.toLocaleString('fa-IR')} ریال
+                </p>
+              </>
             )}
           </div>
 
-          <div className="flex justify-end items-center gap-1">
+          <div className="mt-auto flex justify-end items-center gap-1">
             {[...Array(fullStars)].map((_, i) => (
-              <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+              <Star
+                key={i}
+                className="w-4 h-4 fill-yellow-400 text-yellow-400"
+              />
             ))}
 
             {hasHalfStar && (
@@ -442,7 +460,10 @@ const ProductCard = ({
             )}
 
             {[...Array(emptyStars)].map((_, i) => (
-              <Star key={i + fullStars + (hasHalfStar ? 1 : 0)} className="w-4 h-4 fill-gray-300 text-gray-300" />
+              <Star
+                key={i + fullStars + (hasHalfStar ? 1 : 0)}
+                className="w-4 h-4 fill-gray-300 text-gray-300"
+              />
             ))}
 
             <span className="text-sm text-gray-600 mr-1">
