@@ -22,10 +22,14 @@ const CartSection = ({
   removeItem,
   updateQuantity
 }) => {
+  const hasCartItems = cartItems.length > 0;
+  
   return (
     <section id="cart-section" className="scroll-mt-24 font-Kahroba px-4 md:px-0">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-        <div className="order-2 lg:order-1 bg-white rounded-xl shadow-lg p-4 md:p-6 h-fit border border-gray-200">
+
+        {hasCartItems && (
+                  <div className="order-2 lg:order-1 bg-white rounded-xl shadow-lg p-4 md:p-6 h-fit border border-gray-200">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 bg-gray-800 rounded-lg">
               <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 text-white" />
@@ -164,8 +168,9 @@ const CartSection = ({
             )}
           </div>
         </div>
+        )}
 
-        <div className="order-1 lg:order-2 lg:col-span-2">
+        <div className={hasCartItems ? "order-1 lg:order-2 lg:col-span-2" : "order-1 lg:col-span-3"}>
           <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
             {cartItems.length === 0 ? (
               <div className="p-8 md:p-12 text-center">

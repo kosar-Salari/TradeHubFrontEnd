@@ -7,7 +7,7 @@ import { requestOrderPayment } from '../../../../API/payments.jsx';
 import { getCouponsByWebsiteInStore } from '../../../../API/coupons.jsx';
 import { getActivePlan } from '../../../../API/website.js';
 import { getFavorites } from '../../../../API/favorites.jsx';
-import { getProductById } from '../../../../API/Items.jsx';
+import { getProductById, getItemImages, getItemImageById } from '../../../../API/Items.jsx';
 import ProductCard from '../Home/ProductCard.jsx';
 import { getMyOrders } from '../../../../API/orders.jsx';
 import { applyCouponToOrder } from '../../../../API/coupons.jsx';
@@ -16,7 +16,7 @@ import CartSection from './components/CartSection.jsx';
 import CouponsSection from './components/CouponsSection.jsx';
 import PreviousOrdersSection from './components/PreviousOrdersSection.jsx';
 import InterestsSection from './components/InterestsSection.jsx';
-import NavigationMenu from './components/NavigationMenu.jsx';
+// import NavigationMenu from './components/NavigationMenu.jsx';
 
 export default function Card() {
   const navigate = useNavigate();
@@ -143,58 +143,91 @@ export default function Card() {
     fetchFavorites();
   }, [isLoggedIn]);
 
-useEffect(() => {
-  const fetchOrders = async () => {
+  const getProductMainImage = async (itemId) => {
     try {
-      const data = await getMyOrders();
+      const images = await getItemImages(itemId);
 
-      const formatted = await Promise.all(
-        data
-          .filter(order => order.status === 'Paid') // فقط سفارش‌های پرداخت‌شده
-          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // جدیدترین‌ها اول
-          .map(async (order) => {
-            const detailedItems = await Promise.all(
-              order.order_items.map(async (item) => {
-                try {
-                  const product = await getProductById(item.item_id);
-                  return {
-                    name: product?.name || `محصول ${item.item_id.substring(0, 6)}`,
-                    price: parseFloat(item.price) || 0,
-                    quantity: item.quantity || 1,
-                    itemId: item.item_id,
-                  };
-                } catch (err) {
-                  console.error("⛔️ Failed to fetch product name:", err);
-                  return {
-                    name: `محصول ${item.item_id.substring(0, 6)}`,
-                    price: parseFloat(item.price) || 0,
-                    quantity: item.quantity || 1,
-                    itemId: item.item_id,
-                  };
-                }
-              })
-            );
+      if (!images || images.length === 0) {
+        return null;
+      }
 
-            return {
-              id: order.order_id,
-              date: new Date(order.created_at).toLocaleDateString('fa-IR'),
-              total: parseFloat(order.total_price) || 0,
-              items: detailedItems,
-              status: order.status,
-            };
-          })
-      );
+      const sortedImages = [...images].sort((a, b) => {
+        const aIsMain = a.is_main === true || a.is_main === 1 || a.is_main === 'true';
+        const bIsMain = b.is_main === true || b.is_main === 1 || b.is_main === 'true';
 
-      setPreviousOrders(formatted);
-    } catch (err) {
-      console.error('خطا در دریافت سفارش‌ها:', err);
+        return Number(bIsMain) - Number(aIsMain);
+      });
+
+      const mainImage = sortedImages[0];
+
+      if (!mainImage?.image_id) {
+        return null;
+      }
+
+      const imageUrl = await getItemImageById(mainImage.image_id);
+      return imageUrl || null;
+    } catch (error) {
+      console.warn('خطا در دریافت عکس محصول سفارش:', error);
+      return null;
     }
   };
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const data = await getMyOrders();
 
-  if (isLoggedIn) {
-    fetchOrders();
-  }
-}, [isLoggedIn]);
+        const formatted = await Promise.all(
+          data
+            .filter(order => order.status === 'Paid') // فقط سفارش‌های پرداخت‌شده
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // جدیدترین‌ها اول
+            .map(async (order) => {
+              const detailedItems = await Promise.all(
+                order.order_items.map(async (item) => {
+                  try {
+                    const product = await getProductById(item.item_id);
+                    const productImage = await getProductMainImage(item.item_id);
+
+                    return {
+                      name: product?.name || `محصول ${item.item_id.substring(0, 6)}`,
+                      price: parseFloat(item.price) || 0,
+                      quantity: item.quantity || 1,
+                      itemId: item.item_id,
+                      image: productImage,
+                    };
+                  } catch (err) {
+                    console.error("⛔️ Failed to fetch product name:", err);
+                    return {
+                      name: `محصول ${item.item_id.substring(0, 6)}`,
+                      price: parseFloat(item.price) || 0,
+                      quantity: item.quantity || 1,
+                      itemId: item.item_id,
+                      image: null,
+
+                    };
+                  }
+                })
+              );
+
+              return {
+                id: order.order_id,
+                date: new Date(order.created_at).toLocaleDateString('fa-IR'),
+                total: parseFloat(order.total_price) || 0,
+                items: detailedItems,
+                status: order.status,
+              };
+            })
+        );
+
+        setPreviousOrders(formatted);
+      } catch (err) {
+        console.error('خطا در دریافت سفارش‌ها:', err);
+      }
+    };
+
+    if (isLoggedIn) {
+      fetchOrders();
+    }
+  }, [isLoggedIn]);
 
 
   useEffect(() => {
@@ -412,15 +445,15 @@ useEffect(() => {
     return numericPrice.toLocaleString('fa-IR') + ' ریال';
   };
 
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
-  };
+  // const scrollToSection = (sectionId) => {
+  //   const element = document.getElementById(sectionId);
+  //   if (element) {
+  //     element.scrollIntoView({
+  //       behavior: 'smooth',
+  //       block: 'start'
+  //     });
+  //   }
+  // };
 
   const handleAddToCart = async (productId, result) => {
     console.log(`محصول ${productId} به سبد خرید اضافه شد:`, result);
@@ -552,17 +585,17 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans" dir="rtl">
-      <NavigationMenu
+      {/* <NavigationMenu
         activePlan={activePlan}
         scrollToSection={scrollToSection}
-      />
+      /> */}
 
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-16">
         <CartSection
           cartItems={cartItems}
           isProcessingPayment={isProcessingPayment}
           isCreatingOrder={isCreatingOrder}
-          currentOrderId={currentOrderId}    
+          currentOrderId={currentOrderId}
           couponCode={couponCode}
           setCouponCode={setCouponCode}
           appliedCoupon={appliedCoupon}
@@ -573,7 +606,7 @@ useEffect(() => {
           calculateFinalTotal={calculateFinalTotal}
           getTotalItems={getTotalItems}
           formatPrice={formatPrice}
-          handleCreateOrder={handleCreateOrder}  
+          handleCreateOrder={handleCreateOrder}
           handleCheckout={handleCheckout}
           handleCouponSubmit={handleCouponSubmit}
           removeItem={removeItem}

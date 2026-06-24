@@ -1,5 +1,4 @@
 import React from 'react';
-import { Heart } from 'lucide-react';
 
 const InterestsSection = ({
   loadingFavorites,
@@ -10,13 +9,17 @@ const InterestsSection = ({
   handleFavoriteChange
 }) => {
   return (
-    <section id="interests-section " className="scroll-mt-24 font-Kahroba">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="p-3 bg-gray-800 rounded-xl">
-          <Heart className="w-8 h-8 text-white" />
+    <section id="interests-section" className="scroll-mt-24 font-Kahroba">
+      <div className="flex items-center mb-8">
+        <div className="rounded-xl">
+          <img
+            src="/website/favorite2.png"
+            alt="علاقه‌مندی‌ها"
+            className="w-12 h-12 object-contain"
+          />
         </div>
-        <h2 className="text-3xl font-bold text-gray-800">علاقه‌مندی‌ها</h2>
-        <span className="text-sm text-gray-500">({favoriteProducts.length} محصول)</span>
+        <h2 className="text-3xl font-semibold text-gray-800">علاقه‌مندی‌ها</h2>
+        <span className="text-sm text-gray-500 px-3">({favoriteProducts.length} محصول)</span>
       </div>
 
       {loadingFavorites ? (
@@ -25,9 +28,13 @@ const InterestsSection = ({
           <p className="text-gray-600">در حال بارگذاری علاقه‌مندی‌ها...</p>
         </div>
       ) : favoriteProducts.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-lg p-12 text-center border border-gray-200">
-          <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Heart className="w-12 h-12 text-gray-400" />
+        <div className="bg-white/25 rounded-xl shadow-sm p-12 text-center border border-gray-200">
+          <div className="w-24 h-24  rounded-full flex items-center justify-center mx-auto mb-6">
+            <img
+              src="/website/favorite4.png"
+              alt="علاقه‌مندی‌ها"
+              className="w-25 h-25 object-contain "
+            />
           </div>
           <h3 className="text-xl font-bold text-gray-600 mb-3">هنوز محصولی به علاقه‌مندی‌ها اضافه نکرده‌اید</h3>
           <p className="text-gray-500">محصولات مورد علاقه‌تان را با کلیک روی قلب اضافه کنید</p>
